@@ -55,9 +55,10 @@ class GameObject:
 class Apple(GameObject):
     """Опрекделяем класс яблока"""
 
-    def __init__(self):
+    def __init__(self, snake_positions=None):
         super().__init__(body_color=APPLE_COLOR)
-        self.randomize_position()  # в начале игры проверка не обязательна
+        self.randomize_position()
+        snake_positions = snake_positions or []
 
     def _generate_random_position(self):
         x = randint(0, GRID_WIDTH - 1) * GRID_SIZE
@@ -66,13 +67,11 @@ class Apple(GameObject):
 
     def randomize_position(self, snake_positions=None):
         """Генерируем координаты яблока и проверяем на совпадение со змейкой"""
-        if snake_positions is None:
-            self.position = self._generate_random_position()
-            return
+        snake_positions = snake_positions or []
         while True:
-            x, y = self._generate_random_position()
-            if (x, y) not in snake_positions:
-                self.position = (x, y)
+            new_position = self._generate_random_position()
+            if new_position not in snake_positions:
+                self.position = new_position
                 return
 
     def draw(self):
@@ -87,8 +86,8 @@ class Snake(GameObject):
 
     def __init__(self):
         super().__init__(body_color=SNAKE_COLOR)
-        self.direction = RIGHT
         self.reset()
+        self.direction = RIGHT
 
     def get_head_position(self):
         """Определяем координаты головы змейки."""
@@ -127,9 +126,10 @@ class Snake(GameObject):
     def reset(self):
         """Сброс змейки на стартовую позицию."""
         self.length = 1
-        self.positions = [(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)]
+        self.positions = [SCREEN_CENTER]
         self.next_direction = None
         self.last = None
+        self.direction = choice([UP, DOWN, LEFT, RIGHT])
 
 
 def handle_keys(game_object):
@@ -158,7 +158,7 @@ def main():
     pg.init()
     # Тут нужно создать экземпляры классов.
     snake = Snake()
-    apple = Apple()
+    apple = Apple(snake_positions=snake.positions)
 
     while True:
         clock.tick(SPEED)
@@ -177,7 +177,6 @@ def main():
             apple.randomize_position(snake_positions=snake.positions)
         elif snake.get_head_position() in snake.positions[4:]:
             snake.reset()
-            snake.direction = choice([UP, DOWN, LEFT, RIGHT])
             apple.randomize_position(snake_positions=snake.positions)
         pg.display.flip()
 
