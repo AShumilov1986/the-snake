@@ -57,8 +57,8 @@ class Apple(GameObject):
 
     def __init__(self, snake_positions=None):
         super().__init__(body_color=APPLE_COLOR)
-        self.randomize_position()
         snake_positions = snake_positions or []
+        self.randomize_position(snake_positions)
 
     def _generate_random_position(self):
         x = randint(0, GRID_WIDTH - 1) * GRID_SIZE
